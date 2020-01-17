@@ -1,9 +1,7 @@
 <template>
   <v-app>
     <v-content>
-      <v-container fluid main-container>
         <router-view :key="$route.fullPath" />
-      </v-container>
     </v-content>
   </v-app>
 </template>

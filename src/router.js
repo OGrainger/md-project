@@ -3,10 +3,10 @@ import Vue
 import Router
   from 'vue-router'
 import Login
-  from "./views/Login";
-import {auth} from './firebase-config'
-import HelloWorld
-  from "@/components/HelloWorld";
+  from "@/views/Login";
+import {auth} from '@/firebase-config'
+import Home
+  from "@/views/Home";
 
 Vue.use(Router)
 
@@ -27,7 +27,7 @@ const routes = [
   },
   {
     path: '/home',
-    component: HelloWorld,
+    component: Home,
     name: 'Home',
     meta: {
       requiresAuth: true
