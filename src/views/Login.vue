@@ -29,12 +29,6 @@
                  elevation="0"
                  @click="login">Connexion
           </v-btn>
-          <v-btn color="error"
-                 class="mr-4"
-                 rounded
-                 elevation="0"
-                 disabled>Inscription (bientôt)
-          </v-btn>
       </v-flex>
 
     </v-layout>
