@@ -19,6 +19,7 @@
                   outlined
                   rounded
                   type="password"
+                  @keyup.enter="login"
                   :error-messages="errors.wrongPassword ? 'Mot de passe incorrect' : ''"
           />
 

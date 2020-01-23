@@ -4,46 +4,48 @@
       <v-flex xs12
               sm8
               class="text-center"
-
               md4>
         <v-slider
                 v-model="moodMeter"
                 :color="color"
                 :dark="dark"
-                :track-color="trackColor"
                 always-dirty
-                ticks="always"
                 tick-size="6"
                 thumb-label="always"
                 min="-5"
-                :tick-labels="ticksLabels"
-                max="5"
-        >
+                max="5">
           <template v-slot:prepend>
-            <v-icon
-                    :color="color"
-                    @click="decrement"
-            >
-              mdi-minus
+            <v-icon :color="color"
+                    @click="decrement">mdi-minus
             </v-icon>
           </template>
 
           <template v-slot:append>
             <v-icon
               :color="color"
-              @click="increment"
-            >
-              mdi-plus
+              @click="increment">mdi-plus
             </v-icon>
           </template>
         </v-slider>
-        <v-btn color="info"
-               :disabled="saved"
+        <v-btn :color="saved ? 'success' : 'primary'"
+               :dark="dark"
                :loading="loading"
-               fab
+               rounded
+               style="color: black; font-weight: normal"
                elevation="0"
-               @click="save"><v-icon>{{saved ? 'mdi-check' : 'mdi-plus'}}</v-icon>
+               @click="save"><span v-if="!saved">Maintenant</span><v-icon v-else>mdi-check</v-icon>
         </v-btn>
+        <!--        <v-btn :color="saved ? 'success' : 'primary'"-->
+        <!--               :dark="dark"-->
+        <!--               :loading="loading"-->
+        <!--               fab-->
+        <!--               elevation="0"-->
+        <!--               @click="save"><v-icon>{{saved ? 'mdi-check' : 'mdi-plus'}}</v-icon>-->
+
+        <v-timeline >
+          <v-timeline-item v-for="entry in lastEntries" v-bind:key="entry.id" :color="colorEntry(entry)" fill-dot>{{formatDate(entry)}}</v-timeline-item>
+        </v-timeline>
+
       </v-flex>
     </v-layout>
   </v-container>
@@ -58,19 +60,7 @@ export default {
     moodMeter: 0,
     loading: false,
     saved: false,
-    ticksLabels: [
-      '-5',
-      '',
-      '',
-      '',
-      '',
-      '0',
-      '',
-      '',
-      '',
-      '',
-      '5'
-    ],
+    lastEntries: []
   }),
   computed: {
     dark () {
@@ -81,34 +71,47 @@ export default {
     },
     bgColor () {
       if (this.moodMeter === -5) return 'black'
-      if (this.moodMeter === 5) return '#00e676'
+      if (this.moodMeter === 5) return 'white'
       if (this.moodMeter < 0) return '#ffebee'
       if (this.moodMeter > 0) return '#e8f5e9'
       return '#fbfaf8'
     },
     color () {
-        if (this.moodMeter === -5) return 'white'
-        if (this.moodMeter === -4) return '#795548'
-      if (this.moodMeter === -3) return '#d50000'
-      if (this.moodMeter === -2) return '#ff5722'
-      if (this.moodMeter === -1) return '#ec407a'
-        if (this.moodMeter === 5) return 'white'
-        if (this.moodMeter > 0) return '#1b5e20'
-      return '#607d8b'
-      },
-    trackColor () {
       if (this.moodMeter === -5) return 'white'
-      if (this.moodMeter === -4) return '#795548'
-      if (this.moodMeter === -3) return '#d50000'
-      if (this.moodMeter === -2) return '#ff5722'
-      if (this.moodMeter === -1) return '#ec407a'
-      if (this.moodMeter === 5) return 'white'
-      if (this.moodMeter > 0) return '#1b5e20'
-      return '#607d8b'
+      if (this.moodMeter < 0) return 'error'
+      if (this.moodMeter > 0) return 'success'
+      return '#cfd8dc'
       },
   },
   methods: {
+    formatDate(entry) {
+      return moment(entry.created).fromNow()
+    },
+    fetchLastEntries() {
+      let user = auth.currentUser.uid
+      db.collection('DEV_entries').where('user', '==', user).orderBy('created', 'desc').limit(5).get().then(query => {
+        this.lastEntries = query.docs.map(doc => {
+          return {
+            ...doc.data(),
+            id: doc.id
+          }
+        })
+        console.log(this.lastEntries)
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+    colorEntry(entry) {
+      if (entry.meter === 5) return 'white'
+      if (entry.meter === -5) return 'black'
+      if (entry.meter < 0) return 'error'
+      if (entry.meter > 0) return 'success'
+      return '#cfd8dc'
+    },
     save () {
+      if (this.saved) {
+        return
+      }
       this.loading = true
       let toSave = {
         user: auth.currentUser.uid,
@@ -120,7 +123,8 @@ export default {
         this.saved = true
         setTimeout(() => {
           this.saved = false
-          }, 3000);
+          this.fetchLastEntries()
+        }, 3000);
         this.loading = false
       })
     },
@@ -130,6 +134,9 @@ export default {
     increment () {
       this.moodMeter++
     }
+  },
+  created() {
+    this.fetchLastEntries()
   }
 }
 </script>
