@@ -89,14 +89,13 @@ export default {
     },
     fetchLastEntries() {
       let user = auth.currentUser.uid
-      db.collection('DEV_entries').where('user', '==', user).orderBy('created', 'desc').limit(5).get().then(query => {
+      db.collection(process.env.COLLECTION).where('user', '==', user).orderBy('created', 'desc').limit(5).get().then(query => {
         this.lastEntries = query.docs.map(doc => {
           return {
             ...doc.data(),
             id: doc.id
           }
         })
-        console.log(this.lastEntries)
       }).finally(() => {
         this.loading = false
       })
@@ -118,7 +117,7 @@ export default {
         meter: this.moodMeter,
         created: moment().format()
       }
-      db.collection('DEV_entries').add(toSave).then(() => {
+      db.collection(process.env.COLLECTION).add(toSave).then(() => {
         this.moodMeter = 0
         this.saved = true
         setTimeout(() => {
