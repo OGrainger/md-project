@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-content>
-        <v-btn color="error"
+        <v-btn color="primary"
                small
                class="logout-btn"
                fixed
@@ -9,9 +9,9 @@
                fab
                elevation="0"
                v-show="!!user"
-               @click="logout"><v-icon small>mdi-logout</v-icon>
+               @click="logout">
+          <v-icon small>mdi-logout</v-icon>
         </v-btn>
-
             <router-view :key="$route.fullPath" />
     </v-content>
   </v-app>
